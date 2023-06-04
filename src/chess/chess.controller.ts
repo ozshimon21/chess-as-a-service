@@ -5,18 +5,19 @@ import {
   Get,
   NotFoundException,
   Param,
-  ParseUUIDPipe,
   Post,
   Put,
 } from '@nestjs/common';
 import { GameService } from './services/game.service';
 import { Game } from './schemas/game.schema';
 import { ChessMoveDto } from './dtos/chess-move.dto';
-import { SquareCoordinatePairPipe } from './pipes/square-coordinate-pair/square-coordinate-pair.pipe';
+import { SquareCoordinatePairPipe } from './pipes/square-coordinate-pair.pipe';
 import { SquareCoordinatePairDto } from './dtos/square-coordinate-pair.dto';
 import { ChessMove } from './entities/chess-move';
 import { ApiBadRequestResponse, ApiNotFoundResponse } from '@nestjs/swagger';
-import { ParseObjectIdPipe } from './pipes/parse-object-id/parse-object-id.pipe';
+import { ParseObjectIdPipe } from './pipes/parse-object-id.pipe';
+import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-param.decorator';
+import { ApiImplicitBody } from "@nestjs/swagger/dist/decorators/api-implicit-body.decorator";
 
 @Controller('chess')
 export class ChessController {
@@ -35,27 +36,29 @@ export class ChessController {
   }
 
   @Get('games/:id')
-  async findGame(
-    @Param('id', new ParseObjectIdPipe()) id: string,
-  ): Promise<Game> {
+  async findGame(@Param('id', new ParseObjectIdPipe()) id: string): Promise<Game> {
     const result = await this.gameService.findGameById(id);
     if (!result) throw new NotFoundException(`Game id: ${id} was not found.`);
     return result;
   }
 
   @Get('games/:id/history')
-  async findGameHistory(
-    @Param('id', new ParseObjectIdPipe()) id: string,
-  ): Promise<ChessMove[]> {
-    return this.gameService.getGameHistory(id);
+  async findGameHistory(@Param('id', new ParseObjectIdPipe()) id: string): Promise<ChessMove[]> {
+    const gameHistory = await this.gameService.getGameHistory(id);
+    return gameHistory;
   }
 
-  @Get('games/:id/moves/:square')
+  @Get('games/:id/valid-moves/:square')
+  @ApiImplicitParam({ name: 'square', type: String })
   async findValidMoves(
     @Param('id', new ParseObjectIdPipe()) id: string,
     @Param('square', SquareCoordinatePairPipe) square: SquareCoordinatePairDto,
   ): Promise<ChessMoveDto[]> {
-    return this.gameService.findValidMovesByGameId(id, square);
+    try {
+      return this.gameService.findValidMovesByGameId(id, square);
+    } catch (error) {
+      throw new BadRequestException(error?.message);
+    }
   }
 
   @ApiBadRequestResponse({
@@ -73,10 +76,7 @@ export class ChessController {
     try {
       await this.gameService.updateGame(id, from, to);
     } catch (error) {
-      throw new BadRequestException('Failed to update game.', {
-        cause: error,
-        description: error.message,
-      });
+      throw new BadRequestException(error?.message);
     }
   }
 }

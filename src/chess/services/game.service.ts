@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Game } from '../schemas/game.schema';
 import { Model } from 'mongoose';
@@ -46,6 +42,8 @@ export class GameService {
   }
 
   async getGameHistory(gameId: string): Promise<ChessMove[]> {
+    await this.findGameById(gameId);
+
     const query = this.gameHistoryModel.find({ gameID: gameId }).select('move');
     const result = await query.exec();
     return result.map((value) => value.move);
@@ -58,10 +56,7 @@ export class GameService {
     try {
       const game = await this.findGameById(gameId);
 
-      const result = this.chessService.findAllValidChessMoves(
-        game.board,
-        square,
-      );
+      const result = this.chessService.findAllValidChessMoves(game.board, square);
 
       return result.map((value) => ({
         type: value.type,
@@ -80,16 +75,11 @@ export class GameService {
   ): Promise<void> {
     const game = await this.findGameById(id);
 
-    const fromSquarePlayerColor = this.chessBoardService.getPlayerColorAtSquare(
-      game.board,
-      from,
-    );
+    const fromSquarePlayerColor = this.chessBoardService.getPlayerColorAtSquare(game.board, from);
 
     // Validate next player to player
     if (fromSquarePlayerColor != game.nextPlayer) {
-      throw new Error(
-        `Invalid Move. The next player to player is the ${game.nextPlayer} player.`,
-      );
+      throw new Error(`Invalid Move. The next player to player is the ${game.nextPlayer} player.`);
     }
 
     const move = this.chessService.updateBoard(game.board, from, to);
@@ -103,10 +93,7 @@ export class GameService {
         id,
         {
           board: game.board,
-          nextPlayer:
-            game.nextPlayer == PieceColor.WHITE
-              ? PieceColor.BLACK
-              : PieceColor.WHITE,
+          nextPlayer: game.nextPlayer == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE,
         },
         {
           returnDocument: 'after',
