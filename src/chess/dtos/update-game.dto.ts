@@ -1,10 +1,6 @@
-export class UpdateGameDto {
-  readonly source: CellDto;
-  readonly destination: CellDto;
-}
+import { SquareCoordinatePairDto } from './square-coordinate-pair.dto';
 
-export class CellDto {
-  readonly gridLocation: string;
-  readonly row: number;
-  readonly col: number;
+export class UpdateGameDto {
+  readonly origin: SquareCoordinatePairDto;
+  readonly destination: SquareCoordinatePairDto;
 }

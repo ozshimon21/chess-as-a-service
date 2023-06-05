@@ -10,6 +10,10 @@ import { SquareCoordinatePairDto } from '../dtos/square-coordinate-pair.dto';
 import { ChessBoardService } from './chess-board.service';
 import { GameDto } from '../dtos/game.dto';
 
+/**
+ * The GameService is responsible for managing a chess game. It handles operations such as creating a new game,
+ * updating the game state based on player moves, and retrieving the game history.
+ */
 @Injectable()
 export class GameService {
   constructor(
@@ -19,6 +23,9 @@ export class GameService {
     private chessBoardService: ChessBoardService,
   ) {}
 
+  /**
+   * Create a new chess game.
+   */
   async createGame(): Promise<GameDto> {
     const game: Game = {
       nextPlayer: PieceColor.WHITE,
@@ -33,6 +40,9 @@ export class GameService {
     };
   }
 
+  /**
+   * Find all chess games.
+   */
   async findAllGames(): Promise<GameDto[]> {
     const games = await this.gameModel.find().exec();
     return games.map((game) => ({
@@ -42,6 +52,10 @@ export class GameService {
     }));
   }
 
+  /**
+   * Find game by id.
+   * @param gameId The game identifier
+   */
   async findGameById(gameId: string): Promise<GameDto> {
     const game = await this.gameModel.findById(gameId).exec();
     if (!game) throw new NotFoundException('The game was not found.');
@@ -52,6 +66,10 @@ export class GameService {
     };
   }
 
+  /**
+   * Retrieve the moves history of a chess game.
+   * @param gameId The game identifier
+   */
   async getGameHistory(gameId: string): Promise<ChessMoveDto[]> {
     await this.findGameById(gameId);
 
@@ -64,6 +82,11 @@ export class GameService {
     }));
   }
 
+  /**
+   * Find all valid chess moves for a specific chessboard coordinate.
+   * @param gameId The game identifier
+   * @param square The origin square coordinate
+   */
   async findValidMovesByGameId(
     gameId: string,
     square: SquareCoordinatePairDto,
@@ -83,12 +106,18 @@ export class GameService {
     }
   }
 
+  /**
+   * Update a chessboard with a chess move
+   * @param id
+   * @param from The origin square coordinate
+   * @param to The destination square coordinate
+   */
   async updateGame(
-    id: string,
+    gameId: string,
     from: SquareCoordinatePairDto,
     to: SquareCoordinatePairDto,
   ): Promise<void> {
-    const game = await this.findGameById(id);
+    const game = await this.findGameById(gameId);
 
     const fromSquarePlayerColor = this.chessBoardService.getChessPieceAtSquare(game.board, from);
 
@@ -107,10 +136,11 @@ export class GameService {
 
     const session = await this.gameModel.startSession();
     try {
+      //Creating a transaction to make sure both the game and the history saves to the database
       session.startTransaction();
 
       const gameUpdateResult = await this.gameModel.findByIdAndUpdate(
-        id,
+        gameId,
         {
           board: game.board,
           nextPlayer: game.nextPlayer == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE,
@@ -123,7 +153,7 @@ export class GameService {
       );
 
       const gameHistoryUpdateResult = await this.gameHistoryModel.create({
-        gameID: id,
+        gameID: gameId,
         move: move,
       });
 
