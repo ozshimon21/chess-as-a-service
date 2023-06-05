@@ -17,12 +17,6 @@ import { ChessController } from './chess.controller';
     ]),
   ],
   controllers: [ChessController],
-  providers: [
-    CoordinateService,
-    ChessService,
-    GameService,
-    ChessBoardService,
-    PawnService,
-  ],
+  providers: [CoordinateService, ChessService, GameService, ChessBoardService, PawnService],
 })
 export class ChessModule {}

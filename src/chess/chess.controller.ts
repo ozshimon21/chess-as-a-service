@@ -14,10 +14,14 @@ import { ChessMoveDto } from './dtos/chess-move.dto';
 import { SquareCoordinatePairPipe } from './pipes/square-coordinate-pair.pipe';
 import { SquareCoordinatePairDto } from './dtos/square-coordinate-pair.dto';
 import { ChessMove } from './entities/chess-move';
-import { ApiBadRequestResponse, ApiNotFoundResponse } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { ParseObjectIdPipe } from './pipes/parse-object-id.pipe';
 import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-param.decorator';
-import { ApiImplicitBody } from "@nestjs/swagger/dist/decorators/api-implicit-body.decorator";
 
 @Controller('chess')
 export class ChessController {
@@ -61,13 +65,24 @@ export class ChessController {
     }
   }
 
+  @ApiOkResponse({
+    description: 'The game was updated successfully.',
+  })
   @ApiBadRequestResponse({
-    description: 'Invalid Move. cannot apply the move.',
+    description: 'Move is invalid.',
   })
   @ApiNotFoundResponse({
-    description: 'game id was not found',
+    description: 'The game ID could not be found.',
   })
   @Put('games/:id')
+  @ApiBody({
+    schema: {
+      properties: {
+        from: { type: 'string' },
+        to: { type: 'string' },
+      },
+    },
+  })
   async updateGame(
     @Param('id', new ParseObjectIdPipe()) id: string,
     @Body('from', SquareCoordinatePairPipe) from: SquareCoordinatePairDto,

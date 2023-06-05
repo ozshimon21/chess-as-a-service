@@ -41,12 +41,16 @@ export class GameService {
     return game;
   }
 
-  async getGameHistory(gameId: string): Promise<ChessMove[]> {
+  async getGameHistory(gameId: string): Promise<ChessMoveDto[]> {
     await this.findGameById(gameId);
 
     const query = this.gameHistoryModel.find({ gameID: gameId }).select('move');
     const result = await query.exec();
-    return result.map((value) => value.move);
+    return result.map((value) => ({
+      from: value.move.from,
+      to: value.move.to,
+      type: value.move.type,
+    }));
   }
 
   async findValidMovesByGameId(
