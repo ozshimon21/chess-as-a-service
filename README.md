@@ -5,7 +5,7 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://github.com/ozshimon21/chess-as-a-service
 
-  <p align="center">Apprentice Nest.js Backend Assigment</p>
+  <p align="center">Chess Game Nest.js Backend API</p>
     <p align="center">
 
 ## Description
