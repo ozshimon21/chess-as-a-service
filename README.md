@@ -21,6 +21,18 @@ integrating it into other applications or building additional features on top of
 $ npm install
 ```
 
+## Environment variables
+
+Please edit .env to direct to the mongodb
+To edit the `.env` file to direct to MongoDB, follow these steps:
+
+1. Locate the `.env` file in your project directory.
+2. Open the `.env` file using a text editor.
+3. Look for the variable that specifies the database connection URL `DB_URI` and database name DB_NAME.
+4. Update the values of the variables to the connection URL of your MongoDB database.
+5. Save the changes to the `.env` file.
+
+After making the changes, your application should be able to connect to the MongoDB database specified in the `.env` file.
 ## Running the app
 
 ```bash
