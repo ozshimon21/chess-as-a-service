@@ -26,6 +26,7 @@ import {
 import { ParseObjectIdPipe } from './pipes/parse-object-id.pipe';
 import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-param.decorator';
 import { GameDto } from './dtos/game.dto';
+import { GameHistoryDto } from "./dtos/game-history.dto";
 
 @ApiTags('Chess')
 @Controller('chess')
@@ -69,7 +70,7 @@ export class ChessController {
    */
   @ApiOperation({ summary: 'Retrieve the moves history of a chess game.' })
   @Get('games/:id/history')
-  async findGameHistory(@Param('id', new ParseObjectIdPipe()) id: string): Promise<ChessMove[]> {
+  async findGameHistory(@Param('id', new ParseObjectIdPipe()) id: string): Promise<GameHistoryDto[]> {
     const gameHistory = await this.gameService.getGameHistory(id);
     return gameHistory;
   }

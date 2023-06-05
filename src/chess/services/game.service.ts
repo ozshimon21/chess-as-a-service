@@ -9,6 +9,7 @@ import { ChessService } from './chess.service';
 import { SquareCoordinatePairDto } from '../dtos/square-coordinate-pair.dto';
 import { ChessBoardService } from './chess-board.service';
 import { GameDto } from '../dtos/game.dto';
+import { GameHistoryDto } from '../dtos/game-history.dto';
 
 /**
  * The GameService is responsible for managing a chess game. It handles operations such as creating a new game,
@@ -70,15 +71,18 @@ export class GameService {
    * Retrieve the moves history of a chess game.
    * @param gameId The game identifier
    */
-  async getGameHistory(gameId: string): Promise<ChessMoveDto[]> {
+  async getGameHistory(gameId: string): Promise<GameHistoryDto[]> {
     await this.findGameById(gameId);
 
-    const query = this.gameHistoryModel.find({ gameID: gameId }).select('move');
+    const query = this.gameHistoryModel.find({ gameID: gameId }).select(['move', 'movingPiece']);
     const result = await query.exec();
     return result.map((chessMove) => ({
-      from: chessMove.move.from,
-      to: chessMove.move.to,
-      type: chessMove.move.type,
+      movingPiece: chessMove.movingPiece,
+      move: {
+        from: chessMove.move.from,
+        to: chessMove.move.to,
+        type: chessMove.move.type,
+      },
     }));
   }
 
@@ -119,15 +123,15 @@ export class GameService {
   ): Promise<void> {
     const game = await this.findGameById(gameId);
 
-    const fromSquarePlayerColor = this.chessBoardService.getChessPieceAtSquare(game.board, from);
+    const chessPieceAtSquare = this.chessBoardService.getChessPieceAtSquare(game.board, from);
 
-    if (!fromSquarePlayerColor)
+    if (!chessPieceAtSquare)
       throw new Error(
         `There is no chess piece present at square ${from.coordinatePair} on the board.`,
       );
 
     // Validate next player to player
-    if (fromSquarePlayerColor.color !== game.nextPlayer) {
+    if (chessPieceAtSquare.color !== game.nextPlayer) {
       throw new Error(`Invalid Move. The next player to player is the ${game.nextPlayer} player.`);
     }
 
@@ -154,6 +158,7 @@ export class GameService {
 
       const gameHistoryUpdateResult = await this.gameHistoryModel.create({
         gameID: gameId,
+        movingPiece: chessPieceAtSquare,
         move: move,
       });
 

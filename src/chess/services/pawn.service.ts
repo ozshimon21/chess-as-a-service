@@ -131,7 +131,7 @@ export class PawnService implements ChessPieceManager {
         return {
           from: fromCoordinatePair,
           to: toCoordinatePair,
-          type: ChessMoveType.MOVE,
+          type: ChessMoveType.CAPTURE,
         };
       }
 
@@ -144,7 +144,7 @@ export class PawnService implements ChessPieceManager {
         return {
           from: fromCoordinatePair,
           to: toCoordinatePair,
-          type: ChessMoveType.MOVE,
+          type: ChessMoveType.CAPTURE,
         };
       }
     } else {
@@ -175,7 +175,7 @@ export class PawnService implements ChessPieceManager {
         return {
           from: fromCoordinatePair,
           to: toCoordinatePair,
-          type: ChessMoveType.MOVE,
+          type: ChessMoveType.CAPTURE,
         };
       }
 
@@ -188,7 +188,7 @@ export class PawnService implements ChessPieceManager {
         return {
           from: fromCoordinatePair,
           to: toCoordinatePair,
-          type: ChessMoveType.MOVE,
+          type: ChessMoveType.CAPTURE,
         };
       }
     }
