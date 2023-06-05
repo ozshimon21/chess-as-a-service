@@ -35,7 +35,7 @@ export class ChessController {
   /**
    * Create new chess game.
    */
-  @ApiOperation({ summary: 'Creates new chess game' })
+  @ApiOperation({ summary: 'Create new chess game' })
   @ApiCreatedResponse({ description: 'The game was created sussfully' })
   @Post('games')
   async createGame(): Promise<GameDto> {
@@ -45,7 +45,7 @@ export class ChessController {
   /**
    * Fetch all chess games.
    */
-  @ApiOperation({ summary: 'Fetches all chess games.' })
+  @ApiOperation({ summary: 'Fetch all chess games.' })
   @Get('games')
   async getAllGames(): Promise<GameDto[]> {
     const result = await this.gameService.findAllGames();
