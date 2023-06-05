@@ -14,7 +14,7 @@ Accept: application/json
 
 ### Get all valid moves for game and square
 
-GET http://localhost:3000/chess/games/64780eadb87a0e6b27207021/moves/f7
+GET http://localhost:3000/chess/games/64780eadb87a0e6b27207021/valid-moves/f7
 Accept: application/json
 
 ### Create new Game

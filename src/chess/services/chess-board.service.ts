@@ -12,9 +12,7 @@ export class ChessBoardService {
     board: ChessBoard,
     squareCoordinatePairDto: SquareCoordinatePairDto,
   ): PieceColor {
-    const result = this.coordinateService.convertCoordinatePairToGridCell(
-      squareCoordinatePairDto,
-    );
+    const result = this.coordinateService.convertCoordinatePairToGridCell(squareCoordinatePairDto);
     return board[result.row][result.col]?.color;
   }
 

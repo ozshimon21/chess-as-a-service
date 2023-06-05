@@ -11,15 +11,9 @@ import { CoordinateService } from './coordinate.service';
 export class PawnService implements ChessPieceManager {
   constructor(private coordinateService: CoordinateService) {}
 
-  public isValidMove(
-    board: ChessBoard,
-    from: GridCell,
-    to: GridCell,
-  ): ChessMove {
-    const fromCoordinatePair =
-      this.coordinateService.convertGridCellToCoordinatePair(from);
-    const toCoordinatePair =
-      this.coordinateService.convertGridCellToCoordinatePair(to);
+  public isValidMove(board: ChessBoard, from: GridCell, to: GridCell): ChessMove {
+    const fromCoordinatePair = this.coordinateService.convertGridCellToCoordinatePair(from);
+    const toCoordinatePair = this.coordinateService.convertGridCellToCoordinatePair(to);
 
     // if (board[from.row][from.col].color !== nextPlayer)
     //   throw new Error(
@@ -28,18 +22,14 @@ export class PawnService implements ChessPieceManager {
 
     //Todo: maybe other functions
     // check from and to in the boundaries of the board
-    if (from.row < 0 || from.row > 7)
-      throw new Error(`form not in the board boundaries`);
+    if (from.row < 0 || from.row > 7) throw new Error(`form not in the board boundaries`);
 
     const fromPiece = board[from.row][from.col];
 
-    if (to.row < 0 || to.row > 7)
-      throw new Error(`form not in the board boundaries`);
+    if (to.row < 0 || to.row > 7) throw new Error(`form not in the board boundaries`);
 
     if (!board[from.row][from.col])
-      throw new Error(
-        `There is no game piece present on grid index: [${from.row},${from.col}.`,
-      );
+      throw new Error(`There is no game piece present on grid index: [${from.row},${from.col}.`);
 
     const toPiece = board[to.row][to.col];
 
@@ -57,12 +47,7 @@ export class PawnService implements ChessPieceManager {
       }
 
       //Move down two squares if it's the first move for black pawn
-      if (
-        from.row === 1 &&
-        from.row + 2 === to.row &&
-        from.col === to.col &&
-        toPiece === null
-      ) {
+      if (from.row === 1 && from.row + 2 === to.row && from.col === to.col && toPiece === null) {
         return {
           from: fromCoordinatePair,
           to: toCoordinatePair,
@@ -106,12 +91,7 @@ export class PawnService implements ChessPieceManager {
       }
 
       //Move up two squares if it's the first move for white pawn
-      if (
-        from.row === 6 &&
-        from.row - 2 === to.row &&
-        from.col === to.col &&
-        toPiece === null
-      ) {
+      if (from.row === 6 && from.row - 2 === to.row && from.col === to.col && toPiece === null) {
         return {
           from: fromCoordinatePair,
           to: toCoordinatePair,
@@ -149,23 +129,15 @@ export class PawnService implements ChessPieceManager {
     return null;
   }
 
-  public findAllValidChessMoves(
-    board: ChessBoard,
-    square: SquareCoordinatePairDto,
-  ): ChessMove[] {
+  public findAllValidChessMoves(board: ChessBoard, square: SquareCoordinatePairDto): ChessMove[] {
     const from = this.coordinateService.convertCoordinatePairToGridCell(square);
 
     const piece = board[from.row][from.col];
-    if (!piece)
-      throw new Error(
-        `There is no game piece present on cell ${square.coordinatePair}.`,
-      );
+    if (!piece) throw new Error(`There is no game piece present on cell ${square.coordinatePair}.`);
 
     //Limitation - check valid moves just for Pawns
     if (piece.type !== PieceType.PAWN)
-      throw new Error(
-        `It is invalid to move game pieces other than pawns. (Limitation)`,
-      );
+      throw new Error(`It is invalid to move game pieces other than pawns. (Limitation)`);
 
     const moves: Array<ChessMove> = [];
     const row = from.row;

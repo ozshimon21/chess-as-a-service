@@ -8,8 +8,7 @@ import { GameHistory } from '../schemas/game-history.schema';
 import { ChessService } from './chess.service';
 import { SquareCoordinatePairDto } from '../dtos/square-coordinate-pair.dto';
 import { ChessBoardService } from './chess-board.service';
-import { ChessMove } from '../entities/chess-move';
-import { GameDto } from "../dtos/game.dto";
+import { GameDto } from '../dtos/game.dto';
 
 @Injectable()
 export class GameService {
@@ -34,17 +33,23 @@ export class GameService {
     };
   }
 
-  async findAllGames(): Promise<Game[]> {
-    const games = await this.gameModel.find();
-    return games;
+  async findAllGames(): Promise<GameDto[]> {
+    const games = await this.gameModel.find().exec();
+    return games.map((game) => ({
+      gameId: game.id,
+      nextPlayer: game.nextPlayer,
+      board: game.board,
+    }));
   }
 
-  async findGameById(gameId: string): Promise<Game> {
-    const game = await this.gameModel.findById(gameId);
-
+  async findGameById(gameId: string): Promise<GameDto> {
+    const game = await this.gameModel.findById(gameId).exec();
     if (!game) throw new NotFoundException('The game was not found.');
-
-    return game;
+    return {
+      gameId: game.id,
+      nextPlayer: game.nextPlayer,
+      board: game.board,
+    };
   }
 
   async getGameHistory(gameId: string): Promise<ChessMoveDto[]> {
@@ -52,10 +57,10 @@ export class GameService {
 
     const query = this.gameHistoryModel.find({ gameID: gameId }).select('move');
     const result = await query.exec();
-    return result.map((value) => ({
-      from: value.move.from,
-      to: value.move.to,
-      type: value.move.type,
+    return result.map((chessMove) => ({
+      from: chessMove.move.from,
+      to: chessMove.move.to,
+      type: chessMove.move.type,
     }));
   }
 

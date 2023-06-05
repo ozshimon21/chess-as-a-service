@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { SquareCoordinatePairDto } from './chess/dtos/square-coordinate-pair.dto';
 import { GameDto } from './chess/dtos/game.dto';
 import { ChessMoveDto } from './chess/dtos/chess-move.dto';
 
@@ -15,7 +14,7 @@ async function bootstrap() {
     .addTag('chess')
     .build();
   const document = SwaggerModule.createDocument(app, config, {
-    extraModels: [SquareCoordinatePairDto, GameDto, ChessMoveDto],
+    extraModels: [GameDto, ChessMoveDto],
   });
   SwaggerModule.setup('swagger', app, document);
 

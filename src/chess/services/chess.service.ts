@@ -27,17 +27,11 @@ export class ChessService {
     fromSquare: SquareCoordinatePairDto,
     toSquare: SquareCoordinatePairDto,
   ): ChessMove {
-    const fromCell =
-      this.coordinateService.convertCoordinatePairToGridCell(fromSquare);
-    const toCell =
-      this.coordinateService.convertCoordinatePairToGridCell(toSquare);
+    const fromCell = this.coordinateService.convertCoordinatePairToGridCell(fromSquare);
+    const toCell = this.coordinateService.convertCoordinatePairToGridCell(toSquare);
 
     // Validates the move
-    const validChessMove = this.pawnService.isValidMove(
-      board,
-      fromCell,
-      toCell,
-    );
+    const validChessMove = this.pawnService.isValidMove(board, fromCell, toCell);
     if (!validChessMove) {
       throw new Error('Its not a valid move');
     }

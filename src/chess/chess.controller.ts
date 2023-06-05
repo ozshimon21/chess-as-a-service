@@ -47,7 +47,7 @@ export class ChessController {
    */
   @ApiOperation({ summary: 'Fetches all chess games.' })
   @Get('games')
-  async getAllGames(): Promise<Game[]> {
+  async getAllGames(): Promise<GameDto[]> {
     const result = await this.gameService.findAllGames();
     if (!result) throw new NotFoundException('No games were found');
     return result;
