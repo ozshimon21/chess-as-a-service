@@ -9,6 +9,7 @@ import { ChessService } from './chess.service';
 import { SquareCoordinatePairDto } from '../dtos/square-coordinate-pair.dto';
 import { ChessBoardService } from './chess-board.service';
 import { ChessMove } from '../entities/chess-move';
+import { GameDto } from "../dtos/game.dto";
 
 @Injectable()
 export class GameService {
@@ -19,13 +20,18 @@ export class GameService {
     private chessBoardService: ChessBoardService,
   ) {}
 
-  async createGame(): Promise<Game> {
+  async createGame(): Promise<GameDto> {
     const game: Game = {
       nextPlayer: PieceColor.WHITE,
       board: this.chessService.createChessBoard(),
     };
 
-    return await this.gameModel.create(game);
+    const newGame = await this.gameModel.create(game);
+    return {
+      gameId: newGame.id,
+      nextPlayer: newGame.nextPlayer,
+      board: newGame.board,
+    };
   }
 
   async findAllGames(): Promise<Game[]> {

@@ -17,21 +17,35 @@ import { ChessMove } from './entities/chess-move';
 import {
   ApiBadRequestResponse,
   ApiBody,
+  ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 import { ParseObjectIdPipe } from './pipes/parse-object-id.pipe';
 import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-param.decorator';
+import { GameDto } from './dtos/game.dto';
 
+@ApiTags('Chess')
 @Controller('chess')
 export class ChessController {
   constructor(private gameService: GameService) {}
 
+  /**
+   * Create new chess game.
+   */
+  @ApiOperation({ summary: 'Creates new chess game' })
+  @ApiCreatedResponse({ description: 'The game was created sussfully' })
   @Post('games')
-  async createGame(): Promise<Game> {
+  async createGame(): Promise<GameDto> {
     return this.gameService.createGame();
   }
 
+  /**
+   * Fetch all chess games.
+   */
+  @ApiOperation({ summary: 'Fetches all chess games.' })
   @Get('games')
   async getAllGames(): Promise<Game[]> {
     const result = await this.gameService.findAllGames();
@@ -39,6 +53,10 @@ export class ChessController {
     return result;
   }
 
+  /**
+   * Find chess game by ID.
+   */
+  @ApiOperation({ summary: 'Find chess game by ID.' })
   @Get('games/:id')
   async findGame(@Param('id', new ParseObjectIdPipe()) id: string): Promise<Game> {
     const result = await this.gameService.findGameById(id);
@@ -46,12 +64,22 @@ export class ChessController {
     return result;
   }
 
+  /**
+   * Retrieve the move history of a chess game.
+   */
+  @ApiOperation({ summary: 'Retrieve the move history of a chess game.' })
   @Get('games/:id/history')
   async findGameHistory(@Param('id', new ParseObjectIdPipe()) id: string): Promise<ChessMove[]> {
     const gameHistory = await this.gameService.getGameHistory(id);
     return gameHistory;
   }
 
+  /**
+   * Retrieve all valid moves for a specific chess piece in a particular game.
+   */
+  @ApiOperation({
+    summary: 'Retrieve all valid moves for a specific chess piece in a particular game.',
+  })
   @Get('games/:id/valid-moves/:square')
   @ApiImplicitParam({ name: 'square', type: String })
   async findValidMoves(
@@ -65,6 +93,9 @@ export class ChessController {
     }
   }
 
+  /**
+   * Update the game with a chess move.
+   */
   @ApiOkResponse({
     description: 'The game was updated successfully.',
   })
@@ -74,7 +105,6 @@ export class ChessController {
   @ApiNotFoundResponse({
     description: 'The game ID could not be found.',
   })
-  @Put('games/:id')
   @ApiBody({
     schema: {
       properties: {
@@ -83,6 +113,10 @@ export class ChessController {
       },
     },
   })
+  @ApiOperation({
+    summary: 'Update the game with a chess move.',
+  })
+  @Put('games/:id')
   async updateGame(
     @Param('id', new ParseObjectIdPipe()) id: string,
     @Body('from', SquareCoordinatePairPipe) from: SquareCoordinatePairDto,
