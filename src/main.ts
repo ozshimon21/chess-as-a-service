@@ -8,6 +8,8 @@ import { GameHistoryDto } from './chess/dtos/game-history.dto';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.setGlobalPrefix('api/v1');
+
   const config = new DocumentBuilder()
     .setTitle('Chess as as service')
     .setDescription('Chess Game Nest.js Backend API')

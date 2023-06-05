@@ -1,30 +1,30 @@
 ### Get all games
-GET http://localhost:3000/chess/games
+GET http://localhost:3000/api/v1/chess/games
 Accept: application/json
 
 ### Get game by id
 
-GET http://localhost:3000/chess/games/64780eadb87a0e6b27207021
+GET http://localhost:3000/api/v1/chess/games/64780eadb87a0e6b27207021
 Accept: application/json
 
 ### Get game history by id
 
-GET http://localhost:3000/chess/games/64780eadb87a0e6b27207021/history
+GET http://localhost:3000/api/v1/chess/games/64780eadb87a0e6b27207021/history
 Accept: application/json
 
 ### Get all valid moves for game and square
 
-GET http://localhost:3000/chess/games/64780eadb87a0e6b27207021/valid-moves/f7
+GET http://localhost:3000/api/v1/chess/games/64780eadb87a0e6b27207021/valid-moves/f7
 Accept: application/json
 
 ### Create new Game
 
-POST http://localhost:3000/chess/games
+POST http://localhost:3000/api/v1/chess/games
 Content-Type: application/json
 
 ### Update Game
 
-PUT http://localhost:3000/chess/games/64780eadb87a0e6b27207021
+PUT http://localhost:3000/api/v1/chess/games/64780eadb87a0e6b27207021
 Content-Type: application/json
 
 {
