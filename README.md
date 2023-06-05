@@ -39,6 +39,7 @@ $ npm run start:prod
 While the application is running, open your browser and navigate to http://localhost:3000/swagger.
 You should see the Swagger UI.
 
+![swagger_ui.png](swagger_ui.png)
 
 ## Test
 
