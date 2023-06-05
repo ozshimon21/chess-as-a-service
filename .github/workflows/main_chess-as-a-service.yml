@@ -53,4 +53,4 @@ jobs:
           app-name: 'chess-as-a-service'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D97D7F9072364E27829131A220F886D4 }}
-          package: .
+          package: ./dist
