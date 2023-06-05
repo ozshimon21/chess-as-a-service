@@ -3,22 +3,89 @@ import { ChessPieceManager } from '../interfaces/chess-piece-manager';
 import { ChessBoard } from '../common/models/chess-board';
 import { SquareCoordinatePairDto } from '../dtos/square-coordinate-pair.dto';
 import { ChessMove } from '../entities/chess-move';
-import { GridCell } from '../common/models/grid-cell';
-import { ChessMoveType, PieceColor, PieceType } from '../common/enums';
+import { ChessMoveType, PieceColor } from '../common/enums';
 import { CoordinateService } from './coordinate.service';
+import { GridCell } from '../common/models/grid-cell';
 
+/**
+ * The Pawn Service is responsible for implementing the logic for a pawn chess
+ * piece in the game. It ensures that the pawn moves and captures are valid according to the
+ * rules of chess.
+ */
 @Injectable()
 export class PawnService implements ChessPieceManager {
   constructor(private coordinateService: CoordinateService) {}
 
-  public isValidMove(board: ChessBoard, from: GridCell, to: GridCell): ChessMove {
+  /**
+   * Find all valid chess moves for a specific square on the chess board.
+   * @param board The chess board
+   * @param square The starting position
+   */
+  public findAllValidChessMoves(board: ChessBoard, square: SquareCoordinatePairDto): ChessMove[] {
+    const from = this.coordinateService.convertCoordinatePairToGridCell(square);
+
+    const piece = board[from.row][from.col];
+    if (!piece) throw new Error(`There is no game piece present on cell ${square.coordinatePair}.`);
+
+    const moves: Array<ChessMove> = [];
+    const row = from.row;
+    const col = from.col;
+
+    if (piece.color == PieceColor.BLACK) {
+      let move = this.isValidMoveInternal(board, from, { row: row + 1, col: col });
+      if (move) moves.push(move);
+
+      move = this.isValidMoveInternal(board, from, { row: row + 2, col: col });
+      if (move) moves.push(move);
+
+      move = this.isValidMoveInternal(board, from, { row: row + 1, col: col - 1 });
+      if (move) moves.push(move);
+
+      move = this.isValidMoveInternal(board, from, { row: row + 1, col: col + 1 });
+      if (move) moves.push(move);
+    } else {
+      let move = this.isValidMoveInternal(board, from, { row: row - 1, col: col });
+      if (move) moves.push(move);
+
+      move = this.isValidMoveInternal(board, from, { row: row - 2, col: col });
+      if (move) moves.push(move);
+
+      move = this.isValidMoveInternal(board, from, { row: row - 1, col: col + 1 });
+      if (move) moves.push(move);
+
+      move = this.isValidMoveInternal(board, from, { row: row - 1, col: col - 1 });
+      if (move) moves.push(move);
+    }
+
+    return moves;
+  }
+
+  /**
+   * Validate if a move from one position to another on a chessboard is valid.
+   * @param board The chess board
+   * @param from The start position
+   * @param to The destination position
+   */
+  public isValidMove(
+    board: ChessBoard,
+    from: SquareCoordinatePairDto,
+    to: SquareCoordinatePairDto,
+  ): ChessMove {
+    const fromGridCell = this.coordinateService.convertCoordinatePairToGridCell(from);
+    const toGridCell = this.coordinateService.convertCoordinatePairToGridCell(to);
+
+    return this.isValidMoveInternal(board, fromGridCell, toGridCell);
+  }
+
+  /**
+   * Validate if a move from one position to another on a chessboard is valid using grid cell coordinates.
+   * @param board The chess board
+   * @param from The start position
+   * @param to The destination position
+   */
+  private isValidMoveInternal(board: ChessBoard, from: GridCell, to: GridCell): ChessMove {
     const fromCoordinatePair = this.coordinateService.convertGridCellToCoordinatePair(from);
     const toCoordinatePair = this.coordinateService.convertGridCellToCoordinatePair(to);
-
-    // if (board[from.row][from.col].color !== nextPlayer)
-    //   throw new Error(
-    //     `The move is invalid. The next player to play should be the ${game.nextPlayer} player.`,
-    //   );
 
     //Todo: maybe other functions
     // check from and to in the boundaries of the board
@@ -127,48 +194,5 @@ export class PawnService implements ChessPieceManager {
     }
 
     return null;
-  }
-
-  public findAllValidChessMoves(board: ChessBoard, square: SquareCoordinatePairDto): ChessMove[] {
-    const from = this.coordinateService.convertCoordinatePairToGridCell(square);
-
-    const piece = board[from.row][from.col];
-    if (!piece) throw new Error(`There is no game piece present on cell ${square.coordinatePair}.`);
-
-    //Limitation - check valid moves just for Pawns
-    if (piece.type !== PieceType.PAWN)
-      throw new Error(`It is invalid to move game pieces other than pawns. (Limitation)`);
-
-    const moves: Array<ChessMove> = [];
-    const row = from.row;
-    const col = from.col;
-
-    if (piece.color == PieceColor.BLACK) {
-      let move = this.isValidMove(board, from, { row: row + 1, col: col });
-      if (move) moves.push(move);
-
-      move = this.isValidMove(board, from, { row: row + 2, col: col });
-      if (move) moves.push(move);
-
-      move = this.isValidMove(board, from, { row: row + 1, col: col - 1 });
-      if (move) moves.push(move);
-
-      move = this.isValidMove(board, from, { row: row + 1, col: col + 1 });
-      if (move) moves.push(move);
-    } else {
-      let move = this.isValidMove(board, from, { row: row - 1, col: col });
-      if (move) moves.push(move);
-
-      move = this.isValidMove(board, from, { row: row - 2, col: col });
-      if (move) moves.push(move);
-
-      move = this.isValidMove(board, from, { row: row - 1, col: col + 1 });
-      if (move) moves.push(move);
-
-      move = this.isValidMove(board, from, { row: row - 1, col: col - 1 });
-      if (move) moves.push(move);
-    }
-
-    return moves;
   }
 }

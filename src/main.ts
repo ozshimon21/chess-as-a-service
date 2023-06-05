@@ -9,7 +9,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Chess as as service')
-    .setDescription('The chess as a service description')
+    .setDescription('Apprentice Node.js Backend Assigment')
     .setVersion('1.0')
     .addTag('chess')
     .build();

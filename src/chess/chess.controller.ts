@@ -65,9 +65,9 @@ export class ChessController {
   }
 
   /**
-   * Retrieve the move history of a chess game.
+   * Retrieve the moves history of a chess game.
    */
-  @ApiOperation({ summary: 'Retrieve the move history of a chess game.' })
+  @ApiOperation({ summary: 'Retrieve the moves history of a chess game.' })
   @Get('games/:id/history')
   async findGameHistory(@Param('id', new ParseObjectIdPipe()) id: string): Promise<ChessMove[]> {
     const gameHistory = await this.gameService.getGameHistory(id);

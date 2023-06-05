@@ -90,10 +90,15 @@ export class GameService {
   ): Promise<void> {
     const game = await this.findGameById(id);
 
-    const fromSquarePlayerColor = this.chessBoardService.getPlayerColorAtSquare(game.board, from);
+    const fromSquarePlayerColor = this.chessBoardService.getChessPieceAtSquare(game.board, from);
+
+    if (!fromSquarePlayerColor)
+      throw new Error(
+        `There is no chess piece present at square ${from.coordinatePair} on the board.`,
+      );
 
     // Validate next player to player
-    if (fromSquarePlayerColor != game.nextPlayer) {
+    if (fromSquarePlayerColor.color !== game.nextPlayer) {
       throw new Error(`Invalid Move. The next player to player is the ${game.nextPlayer} player.`);
     }
 
