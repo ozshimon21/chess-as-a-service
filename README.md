@@ -54,7 +54,7 @@ You should see the Swagger UI.
 ![swagger_ui.png](swagger_ui.png)
 
 *The project also contains the file 'test-api.http' contains sample API queries can be very useful for testing
-and demonstrating the functionality of your API .
+and demonstrating the functionality of the API .
 
 ## Test
 
