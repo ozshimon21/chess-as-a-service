@@ -34,7 +34,9 @@ To edit the `.env` file to direct to MongoDB, follow these steps:
 2. Open the `.env` file using a text editor.
 3. Look for the variable that specifies the database connection URL `DB_URI` and database name DB_NAME.
 4. Update the values of the variables to the connection URL of your MongoDB database.
-5. Save the changes to the `.env` file.
+5. To use a different port for your application instead of the default port 3000, you can
+   Set up a new environment variable called 'PORT' and assign it the value of the desired port number (PORT=5000).
+6. Save the changes to the `.env` file.
 
 After making the changes, your application should be able to connect to the MongoDB database specified in the `.env` file.
 ## Running the app
