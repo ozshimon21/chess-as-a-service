@@ -8,8 +8,7 @@ export class SquareCoordinatePairPipe implements PipeTransform {
 
   transform(value: string, metadata: ArgumentMetadata): SquareCoordinatePairDto {
     try {
-      if (!this.coordinateService.validateSquareCoordinates(value))
-        throw new Error('Something went wrong');
+      this.coordinateService.validateSquareCoordinates(value);
 
       return {
         coordinatePair: value,
