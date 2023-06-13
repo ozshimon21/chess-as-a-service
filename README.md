@@ -64,7 +64,7 @@ You should see the Swagger UI.
 ## Test
 
 ```bash
-The project also contains the file 'test-api.http' contains sample API queries can be very useful for testing
+The project contains the file 'test-api.http'. This file contains sample API queries that can be very useful for testing
 and demonstrating the functionality of the API.
 ```
 
