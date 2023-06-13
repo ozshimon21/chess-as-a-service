@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Game } from '../schemas/game.schema';
 import { Model } from 'mongoose';
@@ -10,6 +10,12 @@ import { SquareCoordinatePairDto } from '../dtos/square-coordinate-pair.dto';
 import { ChessBoardService } from './chess-board.service';
 import { GameDto } from '../dtos/game.dto';
 import { GameHistoryDto } from '../dtos/game-history.dto';
+import {
+  BlankSquareException,
+  GameNotFoundException,
+  InvalidChessMoveSquareToSquare,
+  InvalidChessMoveNextPlayerToPlay,
+} from '../common/errors';
 
 /**
  * The GameService is responsible for managing a chess game. It handles operations such as creating a new game,
@@ -17,6 +23,8 @@ import { GameHistoryDto } from '../dtos/game-history.dto';
  */
 @Injectable()
 export class GameService {
+  private readonly logger = new Logger(GameService.name);
+
   constructor(
     @InjectModel(Game.name) private gameModel: Model<Game>,
     @InjectModel(GameHistory.name) private gameHistoryModel: Model<GameHistory>,
@@ -59,7 +67,7 @@ export class GameService {
    */
   async findGameById(gameId: string): Promise<GameDto> {
     const game = await this.gameModel.findById(gameId).exec();
-    if (!game) throw new NotFoundException('The game was not found.');
+    if (!game) throw new GameNotFoundException();
     return {
       gameId: game.id,
       nextPlayer: game.nextPlayer,
@@ -106,7 +114,8 @@ export class GameService {
         to: value.to,
       }));
     } catch (e) {
-      throw new BadRequestException(e);
+      this.logger.error(`Failed to save game history. ${e.message}`);
+      throw e;
     }
   }
 
@@ -125,24 +134,22 @@ export class GameService {
 
     const chessPieceAtSquare = this.chessBoardService.getChessPieceAtSquare(game.board, from);
 
-    if (!chessPieceAtSquare)
-      throw new Error(
-        `There is no chess piece present at square ${from.coordinatePair} on the board.`,
-      );
+    if (!chessPieceAtSquare) throw new BlankSquareException(from.coordinatePair);
 
     // Validate next player to player
     if (chessPieceAtSquare.color !== game.nextPlayer) {
-      throw new Error(`Invalid Move. The next player to player is the ${game.nextPlayer} player.`);
+      throw new InvalidChessMoveNextPlayerToPlay(game.nextPlayer);
     }
 
     const move = this.chessService.updateBoard(game.board, from, to);
-    if (!move) throw new Error('Move is not valid');
+    if (!move) throw new InvalidChessMoveSquareToSquare(from.coordinatePair, to.coordinatePair);
 
     const session = await this.gameModel.startSession();
     try {
       //Creating a transaction to make sure both the game and the history saves to the database
       session.startTransaction();
 
+      this.logger.debug(`Updating game document...`);
       const gameUpdateResult = await this.gameModel.findByIdAndUpdate(
         gameId,
         {
@@ -156,6 +163,7 @@ export class GameService {
         },
       );
 
+      this.logger.debug(`Updating game history document...`);
       const gameHistoryUpdateResult = await this.gameHistoryModel.create({
         gameID: gameId,
         movingPiece: chessPieceAtSquare,
@@ -163,8 +171,12 @@ export class GameService {
       });
 
       await session.commitTransaction();
+
+      this.logger.debug(`The game history was saved successfully.`);
     } catch (e) {
+      this.logger.error(`Failed to save game history. ${e.message}`);
       await session.abortTransaction();
+      throw e;
     }
 
     await session.endSession();

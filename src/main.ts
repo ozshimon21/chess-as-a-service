@@ -1,13 +1,17 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { GameDto } from './chess/dtos/game.dto';
 import { ChessMoveDto } from './chess/dtos/chess-move.dto';
 import { GameHistoryDto } from './chess/dtos/game-history.dto';
 import { VersioningType } from '@nestjs/common';
+import { AllExceptionsFilter } from './chess/common/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });

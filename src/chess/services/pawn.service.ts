@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ChessPieceManager } from '../interfaces/chess-piece-manager';
 import { ChessBoard } from '../common/models/chess-board';
 import { SquareCoordinatePairDto } from '../dtos/square-coordinate-pair.dto';
@@ -6,6 +6,7 @@ import { ChessMove } from '../entities/chess-move';
 import { ChessMoveType, PieceColor } from '../common/enums';
 import { CoordinateService } from './coordinate.service';
 import { GridCell } from '../common/models/grid-cell';
+import { BlankSquareException } from '../common/errors';
 
 /**
  * The Pawn Service is responsible for implementing the logic for a pawn chess
@@ -14,6 +15,8 @@ import { GridCell } from '../common/models/grid-cell';
  */
 @Injectable()
 export class PawnService implements ChessPieceManager {
+  private readonly logger = new Logger(PawnService.name);
+
   constructor(private coordinateService: CoordinateService) {}
 
   /**
@@ -25,7 +28,7 @@ export class PawnService implements ChessPieceManager {
     const from = this.coordinateService.convertCoordinatePairToGridCell(square);
 
     const piece = board[from.row][from.col];
-    if (!piece) throw new Error(`There is no game piece present on cell ${square.coordinatePair}.`);
+    if (!piece) throw new BlankSquareException(square.coordinatePair);
 
     const moves: Array<ChessMove> = [];
     const row = from.row;
@@ -70,7 +73,7 @@ export class PawnService implements ChessPieceManager {
     board: ChessBoard,
     from: SquareCoordinatePairDto,
     to: SquareCoordinatePairDto,
-  ): ChessMove {
+  ): ChessMove | null {
     const fromGridCell = this.coordinateService.convertCoordinatePairToGridCell(from);
     const toGridCell = this.coordinateService.convertCoordinatePairToGridCell(to);
 
@@ -83,25 +86,42 @@ export class PawnService implements ChessPieceManager {
    * @param from The start position
    * @param to The destination position
    */
-  private isValidMoveInternal(board: ChessBoard, from: GridCell, to: GridCell): ChessMove {
+  private isValidMoveInternal(board: ChessBoard, from: GridCell, to: GridCell): ChessMove | null {
     const fromCoordinatePair = this.coordinateService.convertGridCellToCoordinatePair(from);
     const toCoordinatePair = this.coordinateService.convertGridCellToCoordinatePair(to);
 
-    //Todo: maybe other functions
-    // check from and to in the boundaries of the board
-    if (from.row < 0 || from.row > 7) throw new Error(`form not in the board boundaries`);
+    // ensure that the cells are within the boundaries of the board.
+    if (from.row < 0 || from.row > 7) {
+      this.logger.debug(
+        `The coordinates [${from.row},${from.col}] of the origin cell are outside the board boundaries.`,
+      );
+      return null;
+    }
 
     const fromPiece = board[from.row][from.col];
 
-    if (to.row < 0 || to.row > 7) throw new Error(`form not in the board boundaries`);
+    if (to.row < 0 || to.row > 7) {
+      this.logger.debug(
+        `The coordinates [${from.row},${from.col}] of the destination cell are outside the board boundaries.`,
+      );
+      return null;
+    }
 
-    if (!board[from.row][from.col])
-      throw new Error(`There is no game piece present on grid index: [${from.row},${from.col}.`);
+    if (!board[from.row][from.col]) {
+      this.logger.debug(
+        `There is no game piece present on the game board at the coordinates [${from.row},${from.col}].`,
+      );
+      return null;
+    }
 
     const toPiece = board[to.row][to.col];
 
-    if (board[to.row][to.col]?.color == fromPiece.color)
-      throw new Error(`same piece color on both grid cells`);
+    if (board[to.row][to.col]?.color == fromPiece.color) {
+      this.logger.debug(
+        `Both the origin square and the destination square's game pieces belong to the same player.`,
+      );
+      return null;
+    }
 
     if (fromPiece.color == PieceColor.BLACK) {
       //Move down one square
