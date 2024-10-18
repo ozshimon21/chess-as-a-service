@@ -8,10 +8,6 @@
   <p align="center">Chess Game Nest.js Backend API</p>
     <p align="center">
   
-  <p align="center">
-     <a href="https://chess-as-a-service.azurewebsites.net/swagger" target="blank">Live Demo</a>
-  </p>
-  
 ## Description
 
 This project includes an API for managing chess games. The API likely provides endpoints for creating new games,
